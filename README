@@ -1,0 +1,157 @@
+#Copyright Marin Iulia Alina 2022
+
+
+					TEMA 3-Programarea calculatoarelor
+
+
+	Organizare:
+_______________________________
+-header utils.h
+-definirea functiilor utils.c
+-main image_editor.c
+______________________________
+
+
+	Main: 
+_____________________________________________________________________________
+-se ocupa de apelarea functiilor principale prin intermediul if-urilor
+(switchul nu este permis pe stringuri) cat timp nu se da comanda exit
+,caz in care se incheie programul
+
+-verifica daca exista o imagine incarcara,caz in care apeleaza comanda
+ respectiva(exceptie face load ul ,pentru care se elibereaza memoria in 
+ caz ca este deja o imagine incarcata)
+_____________________________________________________________________________
+
+
+
+	STRUCTURI:
+_____________________________________________________________________________
+-ne folosim de 2 structuri
+
+*image:
+ este poza in sine ,contine tip(ascii =0 sau binar =1 ),culoare(gri=1 
+ sau colorata=2), numar de linii si coloane si photo(matricea dinamica 
+ de tip pixel)
+
+*pixel 
+  Deoarece nr de pixeli difera de la gri la colorat,alocam dinamic double
+-astfel putem varia numarul de “cutii” /boxes prin care e definit un pixel,tip double pentru a avea acuratete calculele
+_____________________________________________________________________________
+
+
+	LOAD:
+__________________________________________________________________________
+-deschidem fisierul citit in main in mod read binary
+
+-Inainte de fiecare citire verificam sa nu fie comentariu(sa inceapa cu #)
+
+-citim numarul magic,liniile si coloanele si valoarea maxima in elementele 
+structurii ‘image’
+
+-prin verificarea numarului magic ii completam pozei tipul(ascii sau binar) 
+si culoarea(gri sau colorata) 
+
+-daca e de tip ascii,ne folosim de functia read_photo
+
+-daca e binara,ne folosim de functia read_photo_binary
+
+-ambele incarca matricea cu citiri diferite
+
+-daca nu sunt erori pe parcurs ,semnalam incarcarea unei poze cu variabila 
+loaded =1
+
+-inchidem fisierul
+___________________________________________________________________________
+
+	
+	
+	SAVE:
+_____________________________________________________________________________	
+-deschidem fisierul citit in main in tip write binary
+-verificam daca comanda specifica salvarea de tip ascii sau nu
+-pentru fiecare afisam magicnumber,nr linii si coloane si maxval,conform 
+formatului
+-transcriem matricele in fisier cu functiile specifice tipului, folosind round
+, pentru a trece la valori tip int
+-inchidem fisierul
+_____________________________________________________________________________
+
+
+
+	SELECT:
+____________________________________________________________________________
+-citim si verificam daca este cuvantul ALL
+*Daca nu,pe parcurs au fost stocate valorile citite si ne folosim de functia 
+atoi pentru a evita dezbinarea unui numar dupa cifre 
+
+-transformam vectorul de char uri intr un numar
+
+-verificam numarul de argumente trimise(sa fie 4)
+
+-verificam matematic valorile
+____________________________________________________________________________
+
+
+
+	CROP:
+_____________________________________________________________________________
+-alocam o matrice de dimensiuni noi (y2-y1 si x2-x1)
+
+-matricea noua o umplem element cu element din portiunea selectata
+
+-eliberam memoria unde era stocata matricea veche
+
+-facem imaginea sa pointeze spre noua matrice
+
+-actualizam dimensiunile matricei
+_____________________________________________________________________________
+
+	
+	ROTATE:
+_____________________________________________________________________________
+-verifica intai daca este selectata toata poza,caz in care e permisa 
+rotirea pentru laturi de lungimi doferite sau daca laturile sunt egale
+
+-se ramifica in 2 functii: 
+
+*rotate_baby_one_more_time se ocupa cu rotirea pentru laturi egale:face
+ o copie a portiunii selectate ,apoi modifica in mod rasucit(rotit spre 
+ dreapta)  in matricea originala  valorile din intervalul selectat.
+
+*spin_me_right_round se ocupa de rotirea intregii imagini: aloca memorie
+ pentru o matrice cu nr de linii si coloane inversare(se roteste,duh),
+ si o completeaza cu valorile rasucite.
+_____________________________________________________________________________
+
+
+	EXIT:
+_____________________________________________________________________________
+-Elibereaza memoria alocata prin for-uri a.i. sa atinga toate punctele
+_____________________________________________________________________________
+
+
+	APPLY:
+_____________________________________________________________________________
+-Citim tipul de efect pentru a sti ce kernel folosim
+
+-alocam o matrice copie,de dimensiuni identice cu matricea originala, 
+in care copiem toate elementele
+ 
+-verificam daca portiunea selectata cuprinde si rama(oricare dintre cele 
+4 margini)
+
+*daca da, adaugam in copie randul /coloana respectiva fara a i face modificari
+,deoarece nu au vecinii necesari folosirii pentru calcul
+
+-Pentru fiecare efect se lucreaza la fel,difera doar valorile kernerului
+,cu care inmultim vecinii pixelului pentru a afla noua valoare a pixelului 
+editat
+
+-deoarece sunt folosite impartirea si numerele negative ,folosim clump pentru 
+a nu fi depasite valorile posibile ale pixelilor/unsigned char (0-255)
+
+-eliberam memoria alocata matricei originale(a.photo) si o facem sa pointeze 
+la noua matrice care contine poza editata
+_____________________________________________________________________________
+
